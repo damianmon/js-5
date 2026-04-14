@@ -1,0 +1,19 @@
+{
+  "name": "katas-promise-apis",
+  "version": "1.0.0",
+  "description": "Tests para las 40 katas de Promise APIs",
+  "scripts": {
+    "test": "jest --watchAll --forceExit --silent",
+    "test:run": "jest --forceExit --silent"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "setupFiles": [
+      "./jest.setup.js"
+    ],
+    "testTimeout": 15000
+  }
+}

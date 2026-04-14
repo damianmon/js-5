@@ -1,0 +1,418 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Laboratorio de Asincronía - Appwise</title>
+    <style>
+      :root {
+        --bg: #0d1117;
+        --card: #161b22;
+        --text: #c9d1d9;
+        --border: #30363d;
+        --accent: #58a6ff;
+        --green: #3fb950;
+        --red: #ff7b72;
+        --yellow: #e3b341;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        background-color: var(--bg);
+        color: var(--text);
+        font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 30px;
+        margin: 0;
+      }
+      h1 {
+        color: #fff;
+        border-bottom: 2px solid var(--border);
+        padding-bottom: 15px;
+        margin-bottom: 30px;
+        text-align: center;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 20px;
+        width: 100%;
+        max-width: 1200px;
+      }
+      .card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+      }
+      .card h2 {
+        color: var(--accent);
+        margin-top: 0;
+        font-size: 1.3rem;
+      }
+
+      button {
+        background: var(--accent);
+        color: #000;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 5px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: 0.2s;
+        margin-bottom: 15px;
+      }
+      button:hover {
+        opacity: 0.8;
+      }
+      button:disabled {
+        background: #555;
+        cursor: not-allowed;
+      }
+
+      /* Código Demo */
+      .codigo-demo {
+        background: #010409;
+        padding: 15px;
+        border-radius: 5px;
+        border: 1px solid var(--border);
+        font-size: 0.85rem;
+        color: #c9d1d9;
+        margin-bottom: 15px;
+        overflow-x: auto;
+        font-family: monospace;
+      }
+      .codigo-demo .keyword {
+        color: #ff7b72;
+      }
+      .codigo-demo .method {
+        color: #d2a8ff;
+      }
+      .codigo-demo .string {
+        color: #a5d6ff;
+      }
+      .codigo-demo .comment {
+        color: #8b949e;
+        font-style: italic;
+      }
+
+      /* Consola Falsa */
+      .consola {
+        background: #000;
+        border: 1px solid var(--border);
+        border-radius: 5px;
+        padding: 15px;
+        font-family: monospace;
+        color: #a5d6ff;
+        min-height: 150px;
+        flex-grow: 1;
+        overflow-y: auto;
+      }
+      .log-sync {
+        color: #c9d1d9;
+      }
+      .log-macro {
+        color: var(--yellow);
+        font-weight: bold;
+      }
+      .log-micro {
+        color: var(--green);
+        font-weight: bold;
+      }
+
+      /* Badges y UI de Promesas/Pokemon */
+      .badge {
+        display: inline-block;
+        padding: 5px 10px;
+        border-radius: 15px;
+        font-size: 0.8rem;
+        font-weight: bold;
+        margin-bottom: 15px;
+        background: #333;
+        color: white;
+      }
+      .badge.pending {
+        background: var(--yellow);
+        color: #000;
+      }
+      .badge.fulfilled {
+        background: var(--green);
+        color: #000;
+      }
+      .badge.rejected {
+        background: var(--red);
+        color: #000;
+      }
+
+      .pokemon-card {
+        text-align: center;
+        background: #222;
+        border-radius: 8px;
+        padding: 15px;
+        margin-top: 10px;
+        display: none;
+        border: 1px solid #444;
+      }
+      .pokemon-card img {
+        width: 120px;
+        height: 120px;
+        background: #333;
+        border-radius: 50%;
+        border: 3px solid var(--yellow);
+        margin-bottom: 10px;
+      }
+      .pokemon-card h3 {
+        margin: 0;
+        color: white;
+        text-transform: capitalize;
+      }
+
+      .loader {
+        border: 4px solid #333;
+        border-top: 4px solid var(--accent);
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        animation: spin 1s linear infinite;
+        margin: 20px auto;
+        display: none;
+      }
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <h1>⏳ Laboratorio de Asincronía</h1>
+
+    <div class="grid">
+      <div class="card">
+        <h2>1. El Event Loop (Micro vs Macro)</h2>
+        <p>
+          Observá cómo la Promesa (Microtarea VIP) se adelanta al
+          <code>setTimeout</code> (Macrotarea) aunque ambas tengan 0 segundos de
+          demora.
+        </p>
+
+        <div class="codigo-demo">
+          <span class="method">console.log</span>(<span class="string"
+            >"1. Inicio (Call Stack)"</span
+          >);
+
+          <span class="method">setTimeout</span>(() => {
+          <span class="method">console.log</span>(<span class="string"
+            >"4. Macrotarea (setTimeout)"</span
+          >); }, <span class="keyword">0</span>);
+
+          <span class="keyword">Promise</span>.<span class="method"
+            >resolve</span
+          >().<span class="method">then</span>(() => {
+          <span class="method">console.log</span>(<span class="string"
+            >"3. Microtarea VIP (Promesa)"</span
+          >); });
+
+          <span class="method">console.log</span>(<span class="string"
+            >"2. Fin (Call Stack)"</span
+          >);
+        </div>
+
+        <button id="btn-loop">▶ Ejecutar Código</button>
+        <div class="consola" id="consola-loop"></div>
+      </div>
+
+      <div class="card">
+        <h2>2. Anatomía de Promesas</h2>
+        <p>
+          Simulador de la pizzería. La promesa se resolverá o rechazará de forma
+          aleatoria tras 3 segundos.
+        </p>
+        <button id="btn-pizza">🍕 Pedir Pizza</button>
+        <div id="badge-promesa" class="badge">Estado: STANDBY</div>
+        <div class="consola" id="consola-pizza"></div>
+      </div>
+
+      <div class="card">
+        <h2>3. Consumo de API (async/await)</h2>
+        <p>
+          Vamos a buscar datos reales a la PokeAPI usando asincronía moderna.
+        </p>
+        <div style="display: flex; gap: 10px; margin-bottom: 15px">
+          <input
+            type="text"
+            id="input-poke"
+            value="gengar"
+            style="
+              flex-grow: 1;
+              padding: 8px;
+              border-radius: 5px;
+              border: none;
+              background: #222;
+              color: white;
+            "
+            placeholder="Ej: charizard"
+          />
+          <button id="btn-poke" style="margin: 0">🔍 Buscar</button>
+        </div>
+
+        <div class="consola" id="consola-poke" style="min-height: 50px">
+          Esperando petición...
+        </div>
+        <div class="loader" id="loader-poke"></div>
+
+        <div class="pokemon-card" id="tarjeta-poke">
+          <img id="poke-img" src="" alt="Pokemon sprite" />
+          <h3 id="poke-nombre">Nombre</h3>
+          <p
+            id="poke-tipo"
+            style="color: #aaa; margin-top: 5px; font-size: 0.9rem"
+          >
+            Tipo
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Función Helper para escribir en consolas HTML
+      function log(consolaId, texto, clase = "log-sync") {
+        const consola = document.getElementById(consolaId);
+        consola.innerHTML += `<div class="${clase}">> ${texto}</div>`;
+        consola.scrollTop = consola.scrollHeight;
+      }
+
+      // ==========================================
+      // DEMO 1: EVENT LOOP (Micro vs Macro)
+      // ==========================================
+      document.getElementById("btn-loop").addEventListener("click", () => {
+        const consola = document.getElementById("consola-loop");
+        consola.innerHTML = ""; // Limpiar
+        const btn = document.getElementById("btn-loop");
+        btn.disabled = true;
+
+        // Simulamos visualmente el delay de la vida real para que puedan leer cómo aparece
+        log("consola-loop", "1. Inicio (Call Stack)");
+
+        setTimeout(() => {
+          log("consola-loop", "2. Fin (Call Stack)");
+        }, 400);
+
+        setTimeout(() => {
+          log("consola-loop", "3. Microtarea VIP (Promesa)", "log-micro");
+        }, 1000);
+
+        setTimeout(() => {
+          log("consola-loop", "4. Macrotarea (setTimeout)", "log-macro");
+          btn.disabled = false;
+        }, 1600);
+      });
+
+      // ==========================================
+      // DEMO 2: PROMESAS (La Pizzería)
+      // ==========================================
+      document.getElementById("btn-pizza").addEventListener("click", () => {
+        const consola = document.getElementById("consola-pizza");
+        const badge = document.getElementById("badge-promesa");
+        const btn = document.getElementById("btn-pizza");
+
+        consola.innerHTML = "";
+        btn.disabled = true;
+
+        badge.className = "badge pending";
+        badge.textContent = "Estado: PENDING ⏳";
+        log("consola-pizza", "Haciendo el pedido...");
+
+        const pedirPizza = new Promise((resolve, reject) => {
+          setTimeout(() => {
+            const hayQueso = Math.random() > 0.3;
+            if (hayQueso) resolve("¡Pizza de Muzzarella lista!");
+            else reject("Nos quedamos sin queso.");
+          }, 3000);
+        });
+
+        pedirPizza
+          .then((resultado) => {
+            badge.className = "badge fulfilled";
+            badge.textContent = "Estado: FULFILLED ✅";
+            log("consola-pizza", "ÉXITO (.then): " + resultado, "log-micro");
+          })
+          .catch((error) => {
+            badge.className = "badge rejected";
+            badge.textContent = "Estado: REJECTED ❌";
+            log("consola-pizza", "FRACASO (.catch): " + error, "log-macro"); // Uso amarillo por advertencia visual
+          })
+          .finally(() => {
+            btn.disabled = false;
+            log("consola-pizza", "FIN (.finally): Me retiro del mostrador.");
+          });
+      });
+
+      // ==========================================
+      // DEMO 3: ASYNC/AWAIT FETCH (PokeAPI)
+      // ==========================================
+      document
+        .getElementById("btn-poke")
+        .addEventListener("click", async () => {
+          const pokemonName = document
+            .getElementById("input-poke")
+            .value.toLowerCase()
+            .trim();
+          if (!pokemonName) return;
+
+          const consola = document.getElementById("consola-poke");
+          const loader = document.getElementById("loader-poke");
+          const tarjeta = document.getElementById("tarjeta-poke");
+          const btn = document.getElementById("btn-poke");
+
+          consola.innerHTML = "";
+          tarjeta.style.display = "none";
+          loader.style.display = "block";
+          btn.disabled = true;
+
+          log("consola-poke", `Buscando a ${pokemonName} en PokeAPI...`);
+
+          try {
+            const respuesta = await fetch(
+              `https://pokeapi.co/api/v2/pokemon/${pokemonName}`,
+            );
+            if (!respuesta.ok)
+              throw new Error("Pokémon no encontrado (Error 404)");
+
+            log(
+              "consola-poke",
+              "¡Datos recibidos! Desencriptando JSON...",
+              "log-micro",
+            );
+            const datos = await respuesta.json();
+
+            document.getElementById("poke-nombre").textContent = datos.name;
+            document.getElementById("poke-img").src =
+              datos.sprites.front_default;
+            document.getElementById("poke-tipo").textContent =
+              "Tipo: " + datos.types[0].type.name;
+
+            loader.style.display = "none";
+            tarjeta.style.display = "block";
+            log("consola-poke", "Renderizado en pantalla exitoso. ✅");
+          } catch (error) {
+            loader.style.display = "none";
+            log("consola-poke", "ERROR: " + error.message, "log-macro");
+            document.getElementById("consola-poke").lastChild.style.color =
+              "var(--red)";
+          } finally {
+            btn.disabled = false;
+          }
+        });
+    </script>
+  </body>
+</html>
