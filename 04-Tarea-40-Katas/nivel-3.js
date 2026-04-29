@@ -18,6 +18,20 @@
 -------------------------------------------------------------------------- */
 
 // TU CÓDIGO AQUÍ 👇
+async function obtenerPokemon() {
+  try {
+    const res = await fetch("https://pokeapi.co/api/v2/pokemon/pikachu");
+    const data = await res.json();
+
+    console.log({
+      nombre: data.name,
+      id: data.id,
+      peso: data.weight,
+    });
+  } catch (error) {
+    console.log("Error al obtener el Pokémon:", error);
+  }
+}
 
 /* --------------------------------------------------------------------------
    KATA 22: Manejo del error 404
@@ -30,6 +44,24 @@
 -------------------------------------------------------------------------- */
 
 // TU CÓDIGO AQUÍ 👇
+async function buscarPokemon(nombre) {
+  try {
+    const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${nombre}`);
+
+    if (!res.ok) {
+      throw new Error(`No existe ningún Pokémon llamado '${nombre}'.`);
+    }
+
+    const data = await res.json();
+
+    console.log({
+      nombre: data.name,
+      id: data.id,
+    });
+  } catch (error) {
+    console.log(error.message);
+  }
+}
 
 /* --------------------------------------------------------------------------
    KATA 23: fetch a Rick & Morty API
@@ -38,6 +70,21 @@
 -------------------------------------------------------------------------- */
 
 // TU CÓDIGO AQUÍ 👇
+async function obtenerPersonaje() {
+  try {
+    const res = await fetch("https://rickandmortyapi.com/api/character/1");
+    const data = await res.json();
+
+    console.log({
+      nombre: data.name,
+      especie: data.species,
+      estado: data.status,
+      origen: data.origin.name,
+    });
+  } catch (error) {
+    console.log("Error al obtener el personaje:", error);
+  }
+}
 
 /* --------------------------------------------------------------------------
    KATA 24: Mapear datos a una clase
@@ -49,6 +96,27 @@
 -------------------------------------------------------------------------- */
 
 // TU CÓDIGO AQUÍ 👇
+class Personaje {
+  constructor(data) {
+    this.nombre = data.name;
+    this.especie = data.species;
+    this.estado = data.status;
+    this.imagen = data.image;
+  }
+}
+
+async function obtenerPersonaje() {
+  try {
+    const res = await fetch("https://rickandmortyapi.com/api/character/3");
+    const data = await res.json();
+
+    const personaje = new Personaje(data);
+
+    console.log(personaje);
+  } catch (error) {
+    console.log("Error:", error);
+  }
+}
 
 /* --------------------------------------------------------------------------
    KATA 25: fetch de una lista
@@ -58,6 +126,23 @@
 -------------------------------------------------------------------------- */
 
 // TU CÓDIGO AQUÍ 👇
+async function obtenerPosts() {
+  try {
+    const res = await fetch("https://jsonplaceholder.typicode.com/posts");
+    const data = await res.json();
+
+    const primeros5 = data.slice(0, 5);
+
+    primeros5.forEach((post) => {
+      console.log({
+        id: post.id,
+        title: post.title,
+      });
+    });
+  } catch (error) {
+    console.log("Error al obtener posts:", error);
+  }
+}
 
 /* --------------------------------------------------------------------------
    KATA 26: fetch con URL dinámica
@@ -68,6 +153,20 @@
 -------------------------------------------------------------------------- */
 
 // TU CÓDIGO AQUÍ 👇
+async function obtenerUsuario(id) {
+  try {
+    const res = await fetch(`https://jsonplaceholder.typicode.com/users/${id}`);
+    const data = await res.json();
+
+    console.log({
+      nombre: data.name,
+      email: data.email,
+      ciudad: data.address.city,
+    });
+  } catch (error) {
+    console.log("Error al obtener usuario:", error);
+  }
+}
 
 /* --------------------------------------------------------------------------
    KATA 27: fetch y filtrar un array
@@ -78,6 +177,22 @@
 -------------------------------------------------------------------------- */
 
 // TU CÓDIGO AQUÍ 👇
+async function obtenerPersonajesVivos() {
+  try {
+    const res = await fetch("https://rickandmortyapi.com/api/character");
+    const data = await res.json();
+
+    const vivos = data.results.filter((p) => p.status === "Alive");
+
+    console.log("Cantidad de vivos:", vivos.length);
+
+    vivos.forEach((p) => {
+      console.log(p.name);
+    });
+  } catch (error) {
+    console.log("Error:", error);
+  }
+}
 
 /* --------------------------------------------------------------------------
    KATA 28: Fetch encadenado (two-step)
@@ -89,6 +204,21 @@
 -------------------------------------------------------------------------- */
 
 // TU CÓDIGO AQUÍ 👇
+async function obtenerPostYUsuario() {
+  try {
+    const resPost = await fetch("https://jsonplaceholder.typicode.com/posts/1");
+    const post = await resPost.json();
+
+    const resUser = await fetch(
+      `https://jsonplaceholder.typicode.com/users/${post.userId}`,
+    );
+    const user = await resUser.json();
+
+    console.log(`Post: ${post.title} | Autor: ${user.name}`);
+  } catch (error) {
+    console.log("Error:", error);
+  }
+}
 
 /* --------------------------------------------------------------------------
    KATA 29: Buscar Pokémon por tipo
@@ -99,6 +229,20 @@
 -------------------------------------------------------------------------- */
 
 // TU CÓDIGO AQUÍ 👇
+async function obtenerPokemonFuego() {
+  try {
+    const res = await fetch("https://pokeapi.co/api/v2/type/fire");
+    const data = await res.json();
+
+    const primeros8 = data.pokemon.slice(0, 8);
+
+    primeros8.forEach((p) => {
+      console.log(p.pokemon.name);
+    });
+  } catch (error) {
+    console.log("Error:", error);
+  }
+}
 
 /* --------------------------------------------------------------------------
    KATA 30: Mostrar solo campos seleccionados
@@ -110,6 +254,24 @@
 -------------------------------------------------------------------------- */
 
 // TU CÓDIGO AQUÍ 👇
+async function obtenerComentarios() {
+  try {
+    const res = await fetch(
+      "https://jsonplaceholder.typicode.com/comments?_limit=10",
+    );
+    const data = await res.json();
+
+    const comentariosLimpios = data.map((c) => ({
+      id: c.id,
+      nombre: c.name,
+      email: c.email,
+    }));
+
+    console.log(comentariosLimpios);
+  } catch (error) {
+    console.log("Error:", error);
+  }
+}
 
 module.exports = {
   kata21,
